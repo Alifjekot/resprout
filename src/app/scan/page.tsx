@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect, useRef, Suspense } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
-import { Camera, Upload, Edit2, Check, AlertCircle, Sparkles, RefreshCw, ArrowRight } from 'lucide-react';
+import { Camera, Upload, Edit2, Check, AlertCircle, Sparkles, RefreshCw, ArrowRight, ScanLine } from 'lucide-react';
 import { useAuth } from '@/lib/auth-context';
 import { HERO_MATERIALS } from '@/lib/seed';
 
@@ -30,7 +30,6 @@ function ScanContent() {
   const [searchFilter, setSearchFilter] = useState('');
   const [error, setError] = useState<string | null>(null);
 
-  // Check if preset passed via query param
   useEffect(() => {
     const preset = searchParams.get('preset');
     if (preset) {
@@ -38,7 +37,6 @@ function ScanContent() {
     }
   }, [searchParams]);
 
-  // Client-side image resize helper (max 1024px longest side)
   const resizeImage = (file: File): Promise<Blob> => {
     return new Promise((resolve, reject) => {
       const reader = new FileReader();
@@ -159,21 +157,23 @@ function ScanContent() {
   );
 
   return (
-    <div className="max-w-3xl mx-auto space-y-8 pb-12">
+    <div className="max-w-3xl mx-auto space-y-8 pb-14">
       {/* Header */}
       <div className="text-center space-y-2">
-        <div className="inline-flex items-center space-x-1.5 bg-forest-100 text-forest-800 text-xs font-bold px-3 py-1 rounded-full">
-          <Camera className="w-3.5 h-3.5" />
-          <span>Module 2: Scan & Identify Material</span>
+        <div className="inline-flex items-center space-x-2 bg-emerald-50 text-emerald-800 border border-emerald-200/80 text-xs font-black px-3.5 py-1 rounded-full shadow-xs">
+          <ScanLine className="w-3.5 h-3.5 text-emerald-600 animate-pulse" />
+          <span>Module 2: AI Material Identification</span>
         </div>
-        <h1 className="text-3xl font-extrabold text-forest-950">Photograph or Choose Waste Material</h1>
-        <p className="text-sm text-stone-600 max-w-lg mx-auto">
-          Snap a photo with your phone camera, upload an image, or pick from our Malaysian hero waste catalogue.
+        <h1 className="text-3xl sm:text-4xl font-black text-forest-950 tracking-tight">
+          Photograph or Choose Waste Material
+        </h1>
+        <p className="text-xs sm:text-sm text-stone-500 max-w-lg mx-auto">
+          Snap a photo with your device camera, upload an image file, or select from our verified Malaysian hero materials.
         </p>
       </div>
 
-      {/* Upload & Camera Box */}
-      <div className="bg-white rounded-3xl p-6 sm:p-8 border border-forest-100 shadow-md space-y-6">
+      {/* Main Upload Box with Uiverse Glass Card */}
+      <div className="uiverse-card rounded-[2.5rem] p-6 sm:p-9 space-y-6">
         <input
           ref={fileInputRef}
           type="file"
@@ -190,83 +190,92 @@ function ScanContent() {
           onChange={handleFileChange}
         />
 
-        {/* Action Buttons / Preview Area */}
+        {/* Preview Area or Action Buttons */}
         {previewUrl ? (
           <div className="space-y-4">
-            <div className="relative aspect-video max-h-72 w-full rounded-2xl overflow-hidden bg-stone-100 border border-stone-200 flex items-center justify-center">
+            <div className={`relative aspect-video max-h-72 w-full rounded-3xl overflow-hidden bg-stone-900 border border-stone-200 shadow-inner flex items-center justify-center ${isScanning ? 'uiverse-scanner-frame' : ''}`}>
               <img src={previewUrl} alt="Uploaded waste" className="w-full h-full object-contain" />
               {isScanning && (
-                <div className="absolute inset-0 bg-forest-950/60 backdrop-blur-xs flex flex-col items-center justify-center text-white space-y-2">
-                  <RefreshCw className="w-8 h-8 animate-spin text-emerald-300" />
-                  <span className="text-sm font-semibold">Analyzing waste with AI Vision...</span>
+                <div className="absolute inset-0 bg-forest-950/70 backdrop-blur-xs flex flex-col items-center justify-center text-white space-y-3">
+                  <div className="relative">
+                    <RefreshCw className="w-9 h-9 animate-spin text-emerald-300" />
+                    <Sparkles className="w-4 h-4 text-amber-300 absolute -top-1 -right-1 animate-ping" />
+                  </div>
+                  <span className="text-xs font-extrabold tracking-wider uppercase text-emerald-200">
+                    Scanning Waste Morphology with AI Vision...
+                  </span>
                 </div>
               )}
             </div>
-            <div className="flex justify-center space-x-3">
+
+            <div className="flex justify-center space-x-3 pt-1">
               <button
                 onClick={() => fileInputRef.current?.click()}
-                className="px-4 py-2 bg-stone-100 hover:bg-stone-200 text-stone-700 text-xs font-semibold rounded-xl min-h-[44px] transition"
+                className="uiverse-btn-glass px-5 py-2.5 rounded-xl text-xs font-bold"
               >
-                Change photo
+                Change Photo
               </button>
               <button
                 onClick={() => setManualPickerOpen(true)}
-                className="px-4 py-2 bg-forest-50 hover:bg-forest-100 text-forest-700 text-xs font-semibold rounded-xl min-h-[44px] transition"
+                className="uiverse-btn-glass px-5 py-2.5 rounded-xl text-xs font-bold"
               >
-                Pick from list instead
+                Pick from Hero List
               </button>
             </div>
           </div>
         ) : (
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            {/* Camera Capture Button */}
             <button
               onClick={() => cameraInputRef.current?.click()}
-              className="p-8 border-2 border-dashed border-forest-300 hover:border-forest-500 hover:bg-forest-50/50 rounded-2xl flex flex-col items-center justify-center space-y-3 transition group min-h-[160px]"
+              className="p-8 border-2 border-dashed border-emerald-300/80 hover:border-emerald-500 hover:bg-emerald-50/50 rounded-3xl flex flex-col items-center justify-center space-y-3 transition-all group min-h-[170px] shadow-[inset_0_2px_4px_rgba(0,0,0,0.02)]"
             >
-              <div className="w-14 h-14 rounded-2xl bg-forest-100 group-hover:bg-forest-200 text-forest-700 flex items-center justify-center transition">
-                <Camera className="w-7 h-7" />
+              <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-emerald-100 to-forest-100 group-hover:scale-110 text-emerald-800 flex items-center justify-center transition-all shadow-sm">
+                <Camera className="w-8 h-8" />
               </div>
               <div className="text-center">
-                <span className="font-bold text-sm text-forest-900 block">Take Photo with Camera</span>
-                <span className="text-xs text-stone-500">Live capture from smartphone</span>
+                <span className="font-extrabold text-sm text-forest-950 block">Live Camera Capture</span>
+                <span className="text-xs text-stone-500">Auto-resizes to &le;1024px</span>
               </div>
             </button>
 
+            {/* File Upload Button */}
             <button
               onClick={() => fileInputRef.current?.click()}
-              className="p-8 border-2 border-dashed border-forest-300 hover:border-forest-500 hover:bg-forest-50/50 rounded-2xl flex flex-col items-center justify-center space-y-3 transition group min-h-[160px]"
+              className="p-8 border-2 border-dashed border-emerald-300/80 hover:border-emerald-500 hover:bg-emerald-50/50 rounded-3xl flex flex-col items-center justify-center space-y-3 transition-all group min-h-[170px] shadow-[inset_0_2px_4px_rgba(0,0,0,0.02)]"
             >
-              <div className="w-14 h-14 rounded-2xl bg-forest-100 group-hover:bg-forest-200 text-forest-700 flex items-center justify-center transition">
-                <Upload className="w-7 h-7" />
+              <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-emerald-100 to-forest-100 group-hover:scale-110 text-emerald-800 flex items-center justify-center transition-all shadow-sm">
+                <Upload className="w-8 h-8" />
               </div>
               <div className="text-center">
-                <span className="font-bold text-sm text-forest-900 block">Upload Existing Photo</span>
+                <span className="font-extrabold text-sm text-forest-950 block">Upload Image File</span>
                 <span className="text-xs text-stone-500">JPG, PNG, WEBP (Max 10MB)</span>
               </div>
             </button>
           </div>
         )}
 
-        {/* Fallback picker toggle */}
+        {/* Fallback Selector Button */}
         {!previewUrl && (
-          <div className="text-center pt-2">
+          <div className="text-center pt-1">
             <button
               onClick={() => setManualPickerOpen(!manualPickerOpen)}
-              className="text-xs font-semibold text-forest-700 hover:underline min-h-[44px] inline-flex items-center"
+              className="text-xs font-bold text-forest-700 hover:text-emerald-700 hover:underline min-h-[44px] inline-flex items-center space-x-1"
             >
-              Or pick a material from the Malaysian hero catalogue &rarr;
+              <span>Or choose from our Malaysian hero waste catalogue</span>
+              <ArrowRight className="w-3.5 h-3.5 ml-1" />
             </button>
           </div>
         )}
 
-        {/* Searchable Fallback Modal / Panel */}
+        {/* Searchable Fallback Modal */}
         {manualPickerOpen && (
-          <div className="p-4 bg-stone-50 border border-stone-200 rounded-2xl space-y-3">
+          <div className="p-5 bg-gradient-to-b from-stone-50 to-emerald-50/40 border border-emerald-200/80 rounded-3xl space-y-3 shadow-inner">
             <div className="flex items-center justify-between">
-              <span className="text-xs font-bold text-stone-800 uppercase tracking-wider">Select Waste Material</span>
+              <span className="text-xs font-black text-forest-950 uppercase tracking-wider">Select Waste Material</span>
               <button
                 onClick={() => setManualPickerOpen(false)}
-                className="text-xs text-stone-500 hover:text-stone-800"
+                className="text-xs text-stone-400 hover:text-stone-800 font-bold"
               >
                 Close
               </button>
@@ -275,18 +284,18 @@ function ScanContent() {
               type="text"
               value={searchFilter}
               onChange={(e) => setSearchFilter(e.target.value)}
-              placeholder="Filter materials (e.g. coconut, coffee, oil)..."
-              className="w-full px-3 py-2 text-xs border border-stone-300 rounded-lg focus:outline-none focus:ring-1 focus:ring-forest-500"
+              placeholder="Search (e.g. coconut, coffee, palm, oil, fabric)..."
+              className="w-full px-3.5 py-2.5 text-xs border border-stone-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-emerald-500 bg-white"
             />
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 max-h-48 overflow-y-auto pt-1">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5 max-h-52 overflow-y-auto pt-1">
               {filteredMaterials.map((m) => (
                 <button
                   key={m.id}
                   onClick={() => handleSelectFallback(m.name)}
-                  className="p-2.5 text-left rounded-xl bg-white border border-stone-200 hover:border-forest-500 hover:bg-forest-50/60 transition min-h-[44px] flex flex-col justify-center"
+                  className="p-3 text-left rounded-2xl bg-white border border-stone-200 hover:border-emerald-500 hover:shadow-md transition-all flex flex-col justify-center"
                 >
-                  <span className="font-bold text-xs text-stone-900">{m.name}</span>
-                  <span className="text-[10px] text-stone-500 capitalize">{m.category} category &bull; RM {m.typicalCostRangeRm}</span>
+                  <span className="font-extrabold text-xs text-forest-950">{m.name}</span>
+                  <span className="text-[10px] text-stone-500 capitalize">{m.category} &bull; RM {m.typicalCostRangeRm}</span>
                 </button>
               ))}
             </div>
@@ -294,29 +303,31 @@ function ScanContent() {
         )}
 
         {error && (
-          <div className="p-3 bg-red-50 border border-red-200 rounded-xl flex items-center space-x-2 text-xs text-red-700">
+          <div className="p-4 bg-red-50 border border-red-200 rounded-2xl flex items-center space-x-2 text-xs text-red-700">
             <AlertCircle className="w-4 h-4 flex-shrink-0" />
             <span>{error}</span>
           </div>
         )}
 
-        {/* Scan Result Display */}
+        {/* Scan Result Display with Uiverse Glow Frame */}
         {scanResult && (
-          <div className="p-5 bg-gradient-to-br from-emerald-50 to-forest-50 border border-emerald-200 rounded-2xl space-y-4">
-            <div className="flex items-start justify-between">
+          <div className="p-6 bg-gradient-to-br from-emerald-50 via-forest-50/50 to-lime-50/30 border border-emerald-300/80 rounded-3xl space-y-4 shadow-[0_4px_20px_rgba(16,185,129,0.1)]">
+            <div className="flex items-start justify-between gap-3">
               <div className="space-y-1">
-                <span className="text-xs font-bold uppercase tracking-wider text-forest-700">Identified Material</span>
+                <span className="text-[10px] font-black uppercase tracking-widest text-emerald-800">
+                  Identified Waste Material
+                </span>
                 {isEditingName ? (
                   <div className="flex items-center space-x-2 pt-1">
                     <input
                       type="text"
                       value={customMaterialName}
                       onChange={(e) => setCustomMaterialName(e.target.value)}
-                      className="px-3 py-1.5 text-sm font-bold border border-forest-400 rounded-lg focus:outline-none bg-white min-h-[44px]"
+                      className="px-3.5 py-2 text-sm font-bold border border-emerald-400 rounded-xl focus:outline-none bg-white min-h-[44px]"
                     />
                     <button
                       onClick={handleConfirmEdit}
-                      className="p-2 bg-forest-600 text-white rounded-lg hover:bg-forest-700 min-h-[44px] min-w-[44px] flex items-center justify-center"
+                      className="p-2.5 bg-emerald-600 text-white rounded-xl hover:bg-emerald-700 min-h-[44px] min-w-[44px] flex items-center justify-center shadow-xs"
                       title="Save name"
                     >
                       <Check className="w-4 h-4" />
@@ -324,38 +335,38 @@ function ScanContent() {
                   </div>
                 ) : (
                   <div className="flex items-center space-x-2">
-                    <h3 className="text-xl font-black text-forest-950">{scanResult.material_name}</h3>
+                    <h3 className="text-2xl font-black text-forest-950 tracking-tight">{scanResult.material_name}</h3>
                     <button
                       onClick={() => setIsEditingName(true)}
-                      className="p-1.5 text-stone-400 hover:text-forest-700 hover:bg-white rounded-lg transition min-h-[44px] min-w-[44px] flex items-center justify-center"
+                      className="p-2 text-stone-400 hover:text-emerald-700 hover:bg-white rounded-xl transition min-h-[40px] min-w-[40px] flex items-center justify-center"
                       title="Edit material name"
                     >
-                      <Edit2 className="w-3.5 h-3.5" />
+                      <Edit2 className="w-4 h-4" />
                     </button>
                   </div>
                 )}
               </div>
 
               <div className="text-right">
-                <span className="inline-flex items-center space-x-1 text-xs font-bold bg-white px-2.5 py-1 rounded-full border border-emerald-200 text-emerald-800 shadow-xs">
-                  <Sparkles className="w-3 h-3 text-emerald-600" />
+                <span className="inline-flex items-center space-x-1.5 text-xs font-black bg-white px-3 py-1 rounded-full border border-emerald-200 text-emerald-900 shadow-xs">
+                  <Sparkles className="w-3.5 h-3.5 text-emerald-600" />
                   <span>{Math.round(scanResult.confidence * 100)}% Confidence</span>
                 </span>
-                <span className="block text-[10px] uppercase font-bold text-stone-500 mt-1">
+                <span className="block text-[10px] uppercase font-extrabold text-stone-400 mt-1">
                   Category: {scanResult.category}
                 </span>
               </div>
             </div>
 
             {scanResult.confidence < 0.5 && (
-              <div className="p-2.5 bg-amber-50 border border-amber-200 rounded-xl text-xs text-amber-800 flex items-center space-x-2">
+              <div className="p-3 bg-amber-50 border border-amber-200 rounded-2xl text-xs text-amber-800 flex items-center space-x-2">
                 <AlertCircle className="w-4 h-4 flex-shrink-0" />
                 <span>Confidence is low. Please confirm or choose from the list.</span>
               </div>
             )}
 
             {scanResult.notes && (
-              <p className="text-xs text-stone-600 leading-relaxed bg-white/70 p-3 rounded-xl border border-emerald-100">
+              <p className="text-xs text-stone-600 leading-relaxed bg-white/80 p-3.5 rounded-2xl border border-emerald-100">
                 {scanResult.notes}
               </p>
             )}
@@ -363,7 +374,7 @@ function ScanContent() {
             <div className="pt-2">
               <button
                 onClick={handleContinueToIdeas}
-                className="w-full py-3.5 bg-forest-700 hover:bg-forest-800 text-white font-bold rounded-xl shadow-md transition flex items-center justify-center space-x-2 min-h-[48px]"
+                className="uiverse-btn-emerald w-full py-3.5 rounded-2xl font-black text-sm tracking-wide flex items-center justify-center space-x-2 min-h-[48px]"
               >
                 <span>Confirm Material & Spin Ideas</span>
                 <ArrowRight className="w-4 h-4" />

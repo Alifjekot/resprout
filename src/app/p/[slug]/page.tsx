@@ -2,8 +2,9 @@
 
 import React, { useState, useEffect } from 'react';
 import { useParams } from 'next/navigation';
-import { Sprout, CheckCircle2, AlertCircle, Heart, Lock, Target } from 'lucide-react';
+import { Sprout, CheckCircle2, AlertCircle, Heart, Lock, Sparkles } from 'lucide-react';
 import SdgBadge from '@/components/SdgBadge';
+import confetti from 'canvas-confetti';
 
 export default function PublicPledgePage() {
   const params = useParams();
@@ -87,6 +88,14 @@ export default function PublicPledgePage() {
 
       setSubmittedPledgeNum(data.pledgeNumber);
       setPledgeCount(data.pledgeNumber);
+
+      // Confetti burst for supporter
+      confetti({
+        particleCount: 80,
+        spread: 80,
+        origin: { y: 0.5 },
+        colors: ['#10b981', '#34d399', '#f59e0b', '#059669'],
+      });
     } catch (err: any) {
       setError(err?.message || 'Error submitting pledge');
     } finally {
@@ -96,185 +105,187 @@ export default function PublicPledgePage() {
 
   if (isLoading) {
     return (
-      <div className="max-w-2xl mx-auto py-16 text-center space-y-3">
-        <div className="w-10 h-10 border-4 border-forest-600 border-t-transparent rounded-full animate-spin mx-auto" />
-        <p className="text-xs text-stone-500">Loading validation page...</p>
-      </div>
-    );
+        <div className="max-w-2xl mx-auto py-20 text-center space-y-4">
+          <div className="w-12 h-12 border-4 border-emerald-500 border-t-transparent rounded-full animate-spin mx-auto shadow-md" />
+          <p className="text-xs font-bold text-stone-500 uppercase tracking-widest">Loading validation page...</p>
+        </div>
+        );
   }
 
-  if (error && !pageData) {
+        if (error && !pageData) {
     return (
-      <div className="max-w-md mx-auto py-16 text-center space-y-4">
-        <AlertCircle className="w-12 h-12 text-rose-500 mx-auto" />
-        <h2 className="text-xl font-bold text-stone-900">Page Unavailable</h2>
-        <p className="text-xs text-stone-500">{error}</p>
-      </div>
-    );
+          <div className="max-w-md mx-auto py-20 text-center space-y-4">
+            <AlertCircle className="w-12 h-12 text-rose-500 mx-auto" />
+            <h2 className="text-xl font-black text-stone-900">Page Unavailable</h2>
+            <p className="text-xs text-stone-500">{error}</p>
+          </div>
+          );
   }
 
-  const { page, idea } = pageData;
-  const progressPercent = Math.min(100, Math.round((pledgeCount / treeTarget) * 100));
+          const {page, idea} = pageData;
+          const progressPercent = Math.min(100, Math.round((pledgeCount / treeTarget) * 100));
 
-  return (
-    <div className="max-w-2xl mx-auto space-y-8 pb-16">
-      {/* Product Hero Banner */}
-      <div className="bg-white rounded-3xl p-6 sm:p-10 border border-forest-100 shadow-lg space-y-6">
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
-          <div className="inline-flex items-center space-x-1.5 bg-forest-100 text-forest-800 text-xs font-bold px-3 py-1 rounded-full">
-            <Sprout className="w-3.5 h-3.5 text-forest-700" />
-            <span>Sustainable Malaysian Innovation</span>
-          </div>
-          <SdgBadge size="sm" />
-        </div>
+          return (
+              <div className="max-w-2xl mx-auto space-y-8 pb-20">
+                {/* Product Hero Banner with Uiverse Glass Card */}
+                <div className="uiverse-card rounded-[2.5rem] p-7 sm:p-11 space-y-7">
+                  <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                      <div className="inline-flex items-center space-x-2 bg-emerald-50 text-emerald-800 border border-emerald-200/80 text-xs font-black px-3.5 py-1 rounded-full shadow-xs">
+                        <Sprout className="w-3.5 h-3.5 text-emerald-600" />
+                        <span>Sustainable Malaysian Venture</span>
+                      </div>
+                      <SdgBadge size="sm" />
+                    </div>
 
-        <div className="space-y-3">
-          <h1 className="text-2xl sm:text-4xl font-black text-forest-950 tracking-tight leading-tight">
-            {page.headline}
-          </h1>
-          <p className="text-stone-700 text-sm sm:text-base leading-relaxed whitespace-pre-line">
-            {page.body}
-          </p>
-        </div>
+                    <div className="space-y-3">
+                      <h1 className="text-2xl sm:text-4xl font-black text-forest-950 tracking-tight leading-tight">
+                        {page.headline}
+                      </h1>
+                        <p className="text-stone-700 text-sm sm:text-base leading-relaxed whitespace-pre-line font-normal">
+                          {page.body}
+                        </p>
+                    </div>
 
-        {page.price_hint_rm && (
-          <div className="inline-flex items-center space-x-2 bg-amber-50 border border-amber-200 px-3.5 py-1.5 rounded-xl text-xs text-amber-900 font-semibold">
-            <span>Expected Retail Price:</span>
-            <span className="font-black text-amber-800 text-sm">RM {page.price_hint_rm}</span>
-          </div>
+                    {page.price_hint_rm && (
+                        <div className="inline-flex items-center space-x-2.5 bg-amber-50 border border-amber-200/80 px-4 py-2 rounded-2xl text-xs text-amber-900 font-bold shadow-xs">
+                          <span>Expected Retail Price:</span>
+                          <span className="font-black text-amber-800 text-base">RM {page.price_hint_rm}</span>
+                        </div>
         )}
 
-        {/* Tree Progress Tracker (M6-F6 Requirement) */}
-        <div className="p-5 bg-gradient-to-br from-forest-50 to-emerald-50 rounded-2xl border border-emerald-200 space-y-3">
-          <div className="flex items-center justify-between text-xs font-bold text-forest-950">
-            <span className="flex items-center space-x-1.5">
-              <Heart className="w-4 h-4 text-rose-500 fill-rose-500" />
-              <span>{pledgeCount} Community Pledges</span>
-            </span>
-            <span className="text-stone-500">Tree Target: {treeTarget} Supporters</span>
-          </div>
+                              {/* Tree Progress Tracker with Uiverse Visual Fill */}
+                              <div className="p-6 bg-gradient-to-br from-emerald-50/80 via-forest-50/60 to-teal-50/40 rounded-3xl border border-emerald-200/80 space-y-3.5 shadow-sm">
+                                <div className="flex items-center justify-between text-xs font-black text-forest-950">
+                                  <span className="flex items-center space-x-2">
+                                    <span className="w-2.5 h-2.5 rounded-full bg-rose-500 animate-ping" />
+                                    <span>{pledgeCount} Community Pledges</span>
+                                  </span>
+                                  <span className="text-stone-500 font-bold">Tree Target: {treeTarget} Supporters</span>
+                                </div>
 
-          <div className="w-full h-3 rounded-full bg-white border border-emerald-200 overflow-hidden">
-            <div
-              className="h-full bg-gradient-to-r from-emerald-500 to-forest-600 rounded-full transition-all duration-500"
-              style={{ width: `${progressPercent}%` }}
-            />
-          </div>
+                                  <div className="w-full h-3.5 rounded-full bg-white border border-emerald-200/80 overflow-hidden p-0.5 shadow-inner">
+                                    <div
+                                      className="h-full bg-gradient-to-r from-emerald-400 via-emerald-500 to-forest-600 rounded-full transition-all duration-700 shadow-sm"
+                                      style={{ width: `${progressPercent}%` }}
+                                    />
+                                  </div>
 
-          <p className="text-[11px] text-stone-500 text-center">
-            {pledgeCount >= treeTarget
-              ? 'Tree target reached! This idea is fully validated.'
-              : `${treeTarget - pledgeCount} more pledges needed to unlock pilot production batch.`}
-          </p>
-        </div>
+                                    <p className="text-[11px] text-stone-500 text-center font-medium">
+                                      {pledgeCount >= treeTarget
+                                        ? 'Tree target reached! This idea is fully validated.'
+                                        : `${treeTarget - pledgeCount} more pledges needed to unlock pilot production batch.`}
+                                    </p>
+                                </div>
 
-        {/* Pledge Form or Success Message */}
-        {submittedPledgeNum ? (
-          <div className="p-6 bg-emerald-500 text-white rounded-2xl text-center space-y-3 shadow-md animate-growth">
-            <CheckCircle2 className="w-12 h-12 text-white mx-auto" />
-            <h3 className="text-xl font-black">Thank you! You are pledge #{submittedPledgeNum}.</h3>
-            <p className="text-xs text-emerald-100 max-w-md mx-auto">
-              Your interest signals real demand to the creators. We will keep you updated on prototype development without spam.
-            </p>
-          </div>
-        ) : (
-          <form onSubmit={handlePledgeSubmit} className="space-y-4 pt-2">
-            <div className="border-t border-stone-200 pt-5">
-              <h3 className="text-lg font-bold text-forest-950 mb-1">Show Your Interest (Free Pledge)</h3>
-              <p className="text-xs text-stone-500">
-                Back this sustainable initiative today. No payment is required.
-              </p>
-            </div>
+                                {/* Pledge Form or Success Message */}
+                                {submittedPledgeNum ? (
+                                      <div className="p-7 bg-gradient-to-br from-emerald-500 to-forest-600 text-white rounded-3xl text-center space-y-3 shadow-xl animate-growth">
+                                        <div className="w-14 h-14 rounded-2xl bg-white/20 backdrop-blur-md flex items-center justify-center mx-auto shadow-inner">
+                                          <CheckCircle2 className="w-8 h-8 text-white" />
+                                        </div>
+                                        <h3 className="text-2xl font-black">Thank you! You are pledge #{submittedPledgeNum}.</h3>
+                                        <p className="text-xs text-emerald-100 max-w-md mx-auto leading-relaxed">
+                                          Your interest signals real demand to the creators. We will keep you updated on prototype development without spam.
+                                        </p>
+                                      </div>
+                                      ) : (
+                                      <form onSubmit={handlePledgeSubmit} className="space-y-4 pt-2">
+                                          <div className="border-t border-stone-100 pt-6">
+                                            <h3 className="text-lg font-black text-forest-950 mb-1">Show Your Interest (Free Pledge)</h3>
+                                            <p className="text-xs text-stone-500">
+                                              Back this sustainable initiative today. No payment is taken or required.
+                                            </p>
+                                          </div>
 
-            {/* Honeypot field for spam prevention */}
-            <input
-              type="text"
-              name="honeypot"
-              value={honeypot}
-              onChange={(e) => setHoneypot(e.target.value)}
-              className="hidden"
-            />
+                                          {/* Honeypot field */}
+                                          <input
+                                            type="text"
+                                            name="honeypot"
+                                            value={honeypot}
+                                            onChange={(e) => setHoneypot(e.target.value)}
+                                            className="hidden"
+                                          />
 
-            {error && (
-              <div className="p-3 bg-red-50 border border-red-200 rounded-xl text-xs text-red-700 flex items-center space-x-2">
-                <AlertCircle className="w-4 h-4 flex-shrink-0" />
-                <span>{error}</span>
-              </div>
+                                          {error && (
+                                              <div className="p-3.5 bg-red-50 border border-red-200 rounded-2xl text-xs text-red-700 flex items-center space-x-2">
+                                                <AlertCircle className="w-4 h-4 flex-shrink-0" />
+                                                <span>{error}</span>
+                                              </div>
             )}
 
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-              <div>
-                <label className="block text-xs font-semibold text-stone-700 mb-1">Your Full Name</label>
-                <input
-                  type="text"
-                  required
-                  value={name}
-                  onChange={(e) => setName(e.target.value)}
-                  placeholder="e.g. Siti Aminah"
-                  className="w-full px-3.5 py-2.5 rounded-xl border border-stone-200 text-sm focus:outline-none focus:ring-2 focus:ring-forest-500 min-h-[44px]"
-                />
-              </div>
+                                              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                                                <div>
+                                                  <label className="block text-xs font-bold text-stone-700 mb-1.5">Your Full Name</label>
+                                                  <input
+                                                    type="text"
+                                                    required
+                                                    value={name}
+                                                    onChange={(e) => setName(e.target.value)}
+                                                    placeholder="e.g. Siti Aminah"
+                                                    className="w-full px-4 py-2.5 rounded-2xl border border-stone-200 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500 min-h-[44px] bg-stone-50/50"
+                                                  />
+                                                </div>
 
-              <div>
-                <label className="block text-xs font-semibold text-stone-700 mb-1">Email Address</label>
-                <input
-                  type="email"
-                  required
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                  placeholder="aminah@example.my"
-                  className="w-full px-3.5 py-2.5 rounded-xl border border-stone-200 text-sm focus:outline-none focus:ring-2 focus:ring-forest-500 min-h-[44px]"
-                />
-              </div>
-            </div>
+                                                <div>
+                                                  <label className="block text-xs font-bold text-stone-700 mb-1.5">Email Address</label>
+                                                  <input
+                                                    type="email"
+                                                    required
+                                                    value={email}
+                                                    onChange={(e) => setEmail(e.target.value)}
+                                                    placeholder="aminah@example.my"
+                                                    className="w-full px-4 py-2.5 rounded-2xl border border-stone-200 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500 min-h-[44px] bg-stone-50/50"
+                                                  />
+                                                </div>
+                                              </div>
 
-            <div>
-              <label className="block text-xs font-semibold text-stone-700 mb-1">
-                How many units would you potentially purchase?
-              </label>
-              <select
-                value={quantity}
-                onChange={(e) => setQuantity(Number(e.target.value))}
-                className="w-full px-3.5 py-2.5 rounded-xl border border-stone-200 text-sm focus:outline-none focus:ring-2 focus:ring-forest-500 min-h-[44px] bg-white"
-              >
-                <option value={1}>1 unit (Personal trial)</option>
-                <option value={2}>2 units (Home & Family)</option>
-                <option value={5}>5 units (Small business)</option>
-                <option value={10}>10+ units (Wholesale / Commercial)</option>
-              </select>
-            </div>
+                                              <div>
+                                                  <label className="block text-xs font-bold text-stone-700 mb-1.5">
+                                                    How many units would you potentially purchase?
+                                                  </label>
+                                                  <select
+                                                    value={quantity}
+                                                    onChange={(e) => setQuantity(Number(e.target.value))}
+                                                    className="w-full px-4 py-2.5 rounded-2xl border border-stone-200 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500 min-h-[44px] bg-stone-50/50 font-medium"
+                                                  >
+                                                    <option value={1}>1 unit (Personal trial)</option>
+                                                    <option value={2}>2 units (Home & Family)</option>
+                                                    <option value={5}>5 units (Small business)</option>
+                                                    <option value={10}>10+ units (Wholesale / Commercial)</option>
+                                                  </select>
+                                              </div>
 
-            {/* Mandatory PDPA Consent Checkbox (M6-F7 Requirement) */}
-            <label className="flex items-start space-x-3 cursor-pointer pt-1">
-              <input
-                type="checkbox"
-                required
-                checked={consent}
-                onChange={(e) => setConsent(e.target.checked)}
-                className="mt-0.5 accent-forest-600 w-4 h-4 rounded"
-              />
-              <span className="text-xs text-stone-600 leading-tight">
-                I agree to be contacted about this product. Under Malaysia's PDPA, your email will only be used to update you on this product and will never be shared publicly or sold.
-              </span>
-            </label>
+                                                {/* Mandatory PDPA Consent Checkbox */}
+                                                <label className="flex items-start space-x-3 cursor-pointer pt-2">
+                                                  <input
+                                                    type="checkbox"
+                                                    required
+                                                    checked={consent}
+                                                    onChange={(e) => setConsent(e.target.checked)}
+                                                    className="mt-0.5 accent-emerald-600 w-4 h-4 rounded"
+                                                  />
+                                                  <span className="text-xs text-stone-600 leading-tight">
+                                                    I agree to be contacted about this product. Under Malaysia's PDPA, your email will only be used to update you on this product and will never be shared publicly or sold.
+                                                  </span>
+                                                </label>
 
-            <button
-              type="submit"
-              disabled={isSubmitting}
-              className="w-full py-3.5 bg-forest-700 hover:bg-forest-800 text-white font-bold rounded-xl shadow-lg transition flex items-center justify-center space-x-2 min-h-[48px]"
-            >
-              <Heart className="w-4 h-4 text-rose-300 fill-rose-300" />
-              <span>{isSubmitting ? 'Recording pledge...' : 'Pledge Support for This Product'}</span>
-            </button>
+                                                <button
+                                                  type="submit"
+                                                  disabled={isSubmitting}
+                                                  className="uiverse-btn-emerald w-full py-4 rounded-2xl font-black text-sm tracking-wide shadow-lg flex items-center justify-center space-x-2.5 min-h-[50px]"
+                                                >
+                                                  <Heart className="w-4 h-4 text-rose-200 fill-rose-200" />
+                                                  <span>{isSubmitting ? 'Recording pledge...' : 'Pledge Support for This Product'}</span>
+                                                </button>
 
-            {/* Mandatory Fake-Door Disclaimer (M6-F9 Requirement) */}
-            <div className="p-3 bg-stone-50 rounded-xl border border-stone-200 text-center text-[11px] text-stone-500 flex items-center justify-center space-x-1.5">
-              <Lock className="w-3.5 h-3.5 text-stone-400" />
-              <span>This is a demand validation test. No payment is taken.</span>
-            </div>
-          </form>
+                                                  {/* Mandatory Fake-Door Disclaimer */}
+                                                  <div className="p-3.5 bg-stone-50/90 rounded-2xl border border-stone-200/80 text-center text-[11px] text-stone-500 flex items-center justify-center space-x-2">
+                                                    <Lock className="w-3.5 h-3.5 text-stone-400" />
+                                                    <span>This is a demand validation test. No payment is taken or required.</span>
+                                                  </div>
+                                                </form>
         )}
-      </div>
+                                            </div>
     </div>
-  );
+                                        );
 }
