@@ -52,6 +52,33 @@ export interface ScoringResult {
   stage: PlantStage;
 }
 
+export interface GuideStep {
+  stepNumber: number;
+  title: string;
+  duration: string;
+  description: string;
+  keyInstructions: string[];
+  equipmentNeeded?: string[];
+  safetyTips?: string;
+  proTip?: string;
+}
+
+export interface MakerGuide {
+  ideaId: string;
+  ideaName: string;
+  materialName: string;
+  category: MaterialCategory;
+  difficulty: number;
+  estStartupCostRm: number;
+  estProductionTime: string;
+  batchYield: string;
+  materialsList: Array<{ name: string; quantity: string; estCostRm: number; source: string }>;
+  toolsRequired: Array<{ name: string; estCostRm: number; canBeSubstitutedWith?: string }>;
+  safetyGear: string[];
+  steps: GuideStep[];
+  commonPitfalls: string[];
+}
+
 export interface Idea {
   id: string;
   scanId: string;

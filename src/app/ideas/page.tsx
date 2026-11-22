@@ -2,8 +2,10 @@
 
 import React, { useState, useEffect, Suspense } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
-import { Lightbulb, RotateCcw, Bookmark, Sparkles, AlertCircle, CheckCircle2, ChevronRight, Zap } from 'lucide-react';
+import { Lightbulb, RotateCcw, Bookmark, Sparkles, AlertCircle, CheckCircle2, ChevronRight, Zap, Wrench } from 'lucide-react';
 import { useAuth } from '@/lib/auth-context';
+import MakerGuideModal from '@/components/MakerGuideModal';
+import { MakerGuide } from '@/lib/types';
 
 interface IdeaCard {
   id: string;
@@ -33,9 +35,32 @@ interface IdeaCard {
     const [savedIds, setSavedIds] = useState<Record<string, boolean>>({});
     const [error, setError] = useState<string | null>(null);
 
+    const [selectedGuide, setSelectedGuide] = useState<MakerGuide | null>(null);
+    const [isGuideOpen, setIsGuideOpen] = useState(false);
+    const [loadingGuideId, setLoadingGuideId] = useState<string | null>(null);
+
     useEffect(() => {
       fetchIdeas();
     }, [scanId]);
+
+    const handleOpenGuide = async (idea: IdeaCard) => {
+      setLoadingGuideId(idea.id);
+      try {
+        const res = await fetch(
+          `/api/guide?idea_id=${encodeURIComponent(idea.id)}&material=${encodeURIComponent(
+            materialParam
+          )}&idea_name=${encodeURIComponent(idea.name)}&cost_rm=${idea.est_startup_cost_rm}`
+        );
+        if (!res.ok) throw new Error('Failed to fetch guide');
+        const data = await res.json();
+        setSelectedGuide(data.guide);
+        setIsGuideOpen(true);
+      } catch (err) {
+        console.error(err);
+      } finally {
+        setLoadingGuideId(null);
+      }
+    };
 
         const fetchIdeas = async () => {
           setIsLoading(true);
@@ -220,41 +245,62 @@ interface IdeaCard {
                                           </div>
 
                                 {/* Card Actions */}
-                                <div className="flex items-center space-x-2.5 pt-4 border-t border-stone-100">
+                                <div className="space-y-2 pt-4 border-t border-stone-100">
+                                  {/* How to Make It Button */}
                                   <button
-                                    onClick={() => handleSaveIdea(idea.id)}
-                                    className={`flex-1 py-2.5 px-3 rounded-2xl text-xs font-bold border transition flex items-center justify-center space-x-1.5 min-h-[44px] ${isSaved
-                                        ? 'bg-emerald-50 text-emerald-800 border-emerald-300 shadow-xs'
-                                        : 'bg-white hover:bg-stone-50 text-stone-700 border-stone-300'
-                                      }`}
+                                    onClick={() => handleOpenGuide(idea)}
+                                    disabled={loadingGuideId === idea.id}
+                                    className="w-full py-2.5 px-3 rounded-2xl text-xs font-black bg-gradient-to-r from-emerald-600 to-forest-700 hover:from-emerald-700 hover:to-forest-800 text-white shadow-sm hover:shadow-md transition-all flex items-center justify-center space-x-2 min-h-[44px] group"
                                   >
-                                    {isSaved ? (
-                                      <>
-                                        <CheckCircle2 className="w-4 h-4 text-emerald-600" />
-                                        <span>Saved to Garden</span>
-                                      </>
-                                    ) : (
-                                      <>
-                                        <Bookmark className="w-4 h-4 text-stone-400" />
-                                        <span>Save to Garden</span>
-                                      </>
-                                    )}
+                                    <Wrench className={`w-4 h-4 text-emerald-200 ${loadingGuideId === idea.id ? 'animate-spin' : 'group-hover:rotate-12'} transition-transform`} />
+                                    <span>{loadingGuideId === idea.id ? 'Loading Blueprint...' : 'How to Make It (Step-by-Step)'}</span>
+                                    <ChevronRight className="w-4 h-4 text-emerald-200 group-hover:translate-x-0.5 transition-transform" />
                                   </button>
 
-                                  <button
-                                    onClick={() => handleScoreIdea(idea.id)}
-                                    className="uiverse-btn-emerald flex-1 py-2.5 px-3 rounded-2xl text-xs font-black shadow-xs flex items-center justify-center space-x-1 min-h-[44px]"
-                                  >
-                                    <span>Score this idea</span>
-                                    <ChevronRight className="w-4 h-4" />
-                                  </button>
+                                  <div className="flex items-center space-x-2.5">
+                                    <button
+                                      onClick={() => handleSaveIdea(idea.id)}
+                                      className={`flex-1 py-2.5 px-3 rounded-2xl text-xs font-bold border transition flex items-center justify-center space-x-1.5 min-h-[44px] ${isSaved
+                                          ? 'bg-emerald-50 text-emerald-800 border-emerald-300 shadow-xs'
+                                          : 'bg-white hover:bg-stone-50 text-stone-700 border-stone-300'
+                                        }`}
+                                    >
+                                      {isSaved ? (
+                                        <>
+                                          <CheckCircle2 className="w-4 h-4 text-emerald-600" />
+                                          <span>Saved to Garden</span>
+                                        </>
+                                      ) : (
+                                        <>
+                                          <Bookmark className="w-4 h-4 text-stone-400" />
+                                          <span>Save to Garden</span>
+                                        </>
+                                      )}
+                                    </button>
+
+                                    <button
+                                      onClick={() => handleScoreIdea(idea.id)}
+                                      className="uiverse-btn-emerald flex-1 py-2.5 px-3 rounded-2xl text-xs font-black shadow-xs flex items-center justify-center space-x-1 min-h-[44px]"
+                                    >
+                                      <span>Score this idea</span>
+                                      <ChevronRight className="w-4 h-4" />
+                                    </button>
+                                  </div>
                                 </div>
                               </div>
                               );
           })}
                             </div>
       )}
-                </div>
+
+      {/* Step-by-Step Maker Guide Modal */}
+      <MakerGuideModal
+        guide={selectedGuide}
+        isOpen={isGuideOpen}
+        onClose={() => setIsGuideOpen(false)}
+        onScoreIdea={(id) => handleScoreIdea(id)}
+      />
+    </div>
                 );
 }
 

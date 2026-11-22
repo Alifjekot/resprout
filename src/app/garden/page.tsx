@@ -3,7 +3,7 @@
 import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import { Flower2, Camera, ExternalLink, Sliders, Sparkles, Users, Leaf, ArrowRight, Eye, Calendar, X, CheckCircle2 } from 'lucide-react';
+import { Flower2, Camera, ExternalLink, Sliders, Sparkles, Users, Leaf, ArrowRight, Eye, Calendar, X, CheckCircle2, Wrench } from 'lucide-react';
 import { useAuth } from '@/lib/auth-context';
 import PlantGraphic from '@/components/PlantGraphic';
 import SdgBadge from '@/components/SdgBadge';
@@ -314,20 +314,28 @@ export default function GardenPage() {
                                                                             </div>
 
                                                                           {/* Modal Actions */}
-                                                                          <div className="flex flex-col sm:flex-row items-center gap-3 pt-3 border-t border-stone-100">
+                                                                          <div className="flex flex-col sm:flex-row items-center gap-2.5 pt-3 border-t border-stone-100">
+                                                                            <button
+                                                                              onClick={() => router.push(`/guide?idea_id=${selectedIdea.id}`)}
+                                                                              className="uiverse-btn-glass w-full sm:flex-1 py-3 rounded-2xl text-xs font-bold min-h-[44px] flex items-center justify-center space-x-1.5 text-emerald-800"
+                                                                            >
+                                                                              <Wrench className="w-4 h-4 text-emerald-600" />
+                                                                              <span>How to Make It</span>
+                                                                            </button>
+
                                                                             <button
                                                                               onClick={() => router.push(`/score?idea_id=${selectedIdea.id}`)}
                                                                               className="uiverse-btn-glass w-full sm:flex-1 py-3 rounded-2xl text-xs font-bold min-h-[44px] flex items-center justify-center space-x-1.5"
                                                                             >
-                                                                              <Sliders className="w-4 h-4 text-emerald-700" />
-                                                                              <span>Adjust Score Estimates</span>
+                                                                              <Sliders className="w-4 h-4 text-stone-600" />
+                                                                              <span>Adjust Score</span>
                                                                             </button>
 
                                                                             <button
                                                                               onClick={() => router.push(`/pledge/manage?idea_id=${selectedIdea.id}`)}
                                                                               className="uiverse-btn-emerald w-full sm:flex-1 py-3 rounded-2xl text-xs font-black min-h-[44px] flex items-center justify-center space-x-1.5"
                                                                             >
-                                                                              <span>Manage Pledge Page</span>
+                                                                              <span>Pledge Page</span>
                                                                               <ArrowRight className="w-4 h-4" />
                                                                             </button>
                                                                           </div>

@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect, Suspense } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
-import { Award, Sliders, ArrowRight, ArrowLeft, Info, Sprout, Sparkles, CheckCircle2 } from 'lucide-react';
+import { Award, Sliders, ArrowRight, ArrowLeft, Info, Sprout, Sparkles, CheckCircle2, Wrench } from 'lucide-react';
 import SdgBadge from '@/components/SdgBadge';
 import PlantGraphic from '@/components/PlantGraphic';
 import confetti from 'canvas-confetti';
@@ -344,12 +344,22 @@ interface ScoringBreakdown {
 
                                                           {/* Bottom CTA */}
                                                           <div className="flex flex-col sm:flex-row items-center justify-between gap-4 pt-4 border-t border-forest-100">
-                                                            <button
-                                                              onClick={() => router.push('/garden')}
-                                                              className="uiverse-btn-glass px-6 py-3 rounded-2xl text-xs font-bold min-h-[44px]"
-                                                            >
-                                                              View in Idea Garden
-                                                            </button>
+                                                            <div className="flex items-center space-x-2.5 w-full sm:w-auto">
+                                                              <button
+                                                                onClick={() => router.push('/garden')}
+                                                                className="uiverse-btn-glass flex-1 sm:flex-none px-5 py-3 rounded-2xl text-xs font-bold min-h-[44px]"
+                                                              >
+                                                                View Garden
+                                                              </button>
+
+                                                              <button
+                                                                onClick={() => router.push(`/guide?idea_id=${ideaId}`)}
+                                                                className="uiverse-btn-glass flex-1 sm:flex-none px-5 py-3 rounded-2xl text-xs font-bold min-h-[44px] flex items-center justify-center space-x-1.5 text-emerald-800"
+                                                              >
+                                                                <Wrench className="w-4 h-4 text-emerald-600" />
+                                                                <span>How to Make It</span>
+                                                              </button>
+                                                            </div>
 
                                                           <button
                                                             onClick={handleCreatePledgePage}
