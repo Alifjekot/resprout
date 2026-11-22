@@ -22,6 +22,7 @@ function ScanContent() {
     category: string;
     confidence: number;
     notes?: string;
+    source?: 'ai' | 'demo';
   } | null>(null);
 
   const [isEditingName, setIsEditingName] = useState(false);
@@ -119,11 +120,11 @@ function ScanContent() {
         body: formData,
       });
 
+      const data = await res.json();
       if (!res.ok) {
-        throw new Error('Scan service returned an error. Please try again.');
+        throw new Error(data.error || 'Scan service returned an error. Please try again.');
       }
 
-      const data = await res.json();
       setScanResult(data);
       setCustomMaterialName(data.material_name);
     } catch (err: any) {
@@ -354,6 +355,9 @@ function ScanContent() {
                 </span>
                 <span className="block text-[10px] uppercase font-extrabold text-stone-400 mt-1">
                   Category: {scanResult.category}
+                </span>
+                <span className={`block text-[10px] uppercase font-black mt-1 ${scanResult.source === 'ai' ? 'text-emerald-700' : 'text-amber-700'}`}>
+                  {scanResult.source === 'ai' ? 'AI vision result' : 'Demo catalogue result'}
                 </span>
               </div>
             </div>
