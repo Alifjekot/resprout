@@ -33,19 +33,19 @@ ReSprout is a responsive digital platform designed for Malaysian students, resea
 Create `.env.local` based on `.env.local.example`:
 
 ```bash
-# AI Service Configuration (OpenAI or compatible vision API)
+# AI Service Configuration (server-side only)
 AI_API_KEY=your_openai_api_key_here
 AI_MODEL=gpt-4o-mini
 
-# Demo Mode: returns instant verified hero material results
-DEMO_MODE=true
+# Force demo mode; false uses OpenAI if a key exists and falls back to demo if absent
+DEMO_MODE=false
 
 # Tree Growth Targets
 PLEDGE_TARGET_TREE=10
 PLEDGE_TARGET_FOREST=50
 ```
 
-*Note:* When `DEMO_MODE=true` (the default), the app runs without external API keys using verified pre-tested SCAMPER business models for all 5 Hero materials.
+*Note:* For real image recognition, set `AI_API_KEY` in your local `.env.local` and set `DEMO_MODE=false`. If no key is configured, ReSprout automatically uses the demo catalogue. Set `DEMO_MODE=true` to force demo results. Demo results are clearly labelled and are not AI predictions. The API key is read only by the server-side scan route.
 
 ---
 
